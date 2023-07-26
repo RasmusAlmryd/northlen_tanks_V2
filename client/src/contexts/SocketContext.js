@@ -14,11 +14,12 @@ export function useSocket() {
 
 export function SocketProvider({children }) {
   // const [socket, setSocket] = useState()
-  const {currentUser, token} = useAuth()
+  const {loggedIn,currentUser, token} = useAuth()
   const [loading, setLoading] = useState(true)
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
+    // setLoading(true)
     console.log(currentUser);
     if(!currentUser) {
       setLoading(false)
@@ -36,20 +37,23 @@ export function SocketProvider({children }) {
     )
 
     socket.on('connect', () => {
+      console.log('setConnected(true);');
       setConnected(true);
     });
 
     socket.on('disconnect', () => {
+      console.log('setConnected(false);');
       setConnected(false);
     });
 
     console.log('connecting socket');
     
     // setSocket(newSocket)
+    console.log('set loading false');
     setLoading(false)
 
     return () => socket.close()
-  }, [currentUser])
+  }, [loggedIn])
 
   return (
     <SocketContext.Provider value={{socket, connected}}>

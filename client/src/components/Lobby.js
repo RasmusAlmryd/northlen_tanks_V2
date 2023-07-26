@@ -19,22 +19,22 @@ export default function Lobby() {
     e.preventDefault();
     console.log(lobbyCode.current.value);
     console.log(e.target);
-    joinLobby(123)
+    joinLobby(lobbyCode.current.value)
   }
 
-  // if(room){
-  //   return (
-  //     <div>
-  //       <h1>Lobby</h1>
-  //       <p >code: <span>{room.id}</span><Clipboard/></p>
-  //     </div>
-  //   )
-  // }
+  if(room){
+    return (
+      <div>
+        <h1>Lobby</h1>
+        <p >code: <span>{room.id}</span><Clipboard/></p>
+      </div>
+    )
+  }
 
   const queryParams = new URLSearchParams(window.location.search);
   const queryCode = queryParams.get('code');
   if (queryCode) {
-    // joinLobby(queryCode);
+    joinLobby(queryCode);
   }
 
   return (

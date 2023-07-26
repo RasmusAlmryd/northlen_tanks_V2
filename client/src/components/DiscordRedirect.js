@@ -16,6 +16,8 @@ export default function DiscordRedirect() {
         const queryCode = queryParams.get('code');
         const queryState = queryParams.get('state');
         const cookieState = cookies.get('state');
+
+        console.log(queryCode , queryState, cookieState);
         
 
         console.log(!queryCode || !queryState || !cookieState);

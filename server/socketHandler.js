@@ -5,7 +5,12 @@ export default function(io, socket, lobbies){
     
 
     socket.on('join-lobby', (id) => {
+
+        id = parseInt(id);
+
+        console.log(id);
         let lobby = lobbies.find(element => element.id === id)
+        console.log(lobby);
         if(!lobby){
             socket.emit('join-lobby', ({err: 'lobby not found', data: null}))
             return;
@@ -34,6 +39,7 @@ export default function(io, socket, lobbies){
                 avatar: userData.avatar,
             }
             lobby.addPlayer(user)
+            console.log(lobby.players);
         }catch{
             console.log('full lobby');
             socket.emit('join-lobby', ({err: 'lobby is full', data: null}))

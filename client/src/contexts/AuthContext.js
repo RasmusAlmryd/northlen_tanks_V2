@@ -18,12 +18,23 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
-        if (storedToken) {
-            setToken(storedToken);
-            setLoggedIn(true);
-            getUser(storedToken)
+
+        const asyncAuthSequence = async () => {
+            if(storedToken){
+                setToken(storedToken);
+                try {
+                    await getUser(storedToken);
+                    setLoggedIn(true);
+                } catch (error) {
+                    console.log('second');
+                    handleLogout();
+                    
+                }
+            }
+            setLoading(false);
         }
-        setLoading(false);
+
+        asyncAuthSequence();
     }, []);
 
 
@@ -45,8 +56,23 @@ export function AuthProvider({ children }) {
 
         localStorage.setItem('token', data.token);
         setToken(data.token);
-        setLoggedIn(true);
-        getUser(data.token);
+
+        try {
+            await getUser(data.token);
+            setLoggedIn(true);
+        } catch (error) {
+            console.log('second');
+            handleLogout();
+            
+        }
+        // await getUser(data.token);
+        // if(currentUser) {
+        //     setLoggedIn(true);
+        // }else{
+        //     console.log('second');
+        //     handleLogout();
+        // }
+        
     }
 
     
@@ -59,26 +85,26 @@ export function AuthProvider({ children }) {
 
 
 
-    const getUser = (token) =>{
+    const getUser = async (token) =>{
         if(!token) return;
 
-        fetch(`${process.env.REACT_APP_API_ENDPOINT}/user`, {
+        let response = await fetch(`${process.env.REACT_APP_API_ENDPOINT}/user`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token,
             },
-        }).then(response => {
-            if(!response.ok) {
-                throw new Error({code: response.status, message: "unable to retrieve token"})
-            }
-            return response.json() 
-        }).then(data => {
-            setCurrentUser(data.user)
-            console.log(data.user);
-        }).catch(error => {
-            console.log(error);
         })
+
+        if(!response.ok) {
+            throw new Error({code: response.status, message: "unable to retrieve token"})
+        }
+
+        let data = await response.json()
+
+        console.log('setting user');
+        setCurrentUser(data.user)
+
     }
 
 
@@ -105,6 +131,7 @@ export function AuthProvider({ children }) {
         logout: handleLogout,
         loggedIn,
         authenticate,
+        generateState,
         token
     }
 

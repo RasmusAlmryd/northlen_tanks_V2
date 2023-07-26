@@ -8,12 +8,13 @@ import Cookies from 'universal-cookie';
 
 
 export default function Login() {
-    const {loggedIn, authenticate, login} = useAuth();
+    const {loggedIn, generateState, authenticate, login} = useAuth();
     const navigate = useNavigate();
     const cookies = new Cookies()
 
-    
+    console.log('Login');
     function devAuth(){
+        generateState();
         navigate('/discord-oauth-redirect?code=1234&state='+cookies.get('state'))
     }
 
