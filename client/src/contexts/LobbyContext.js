@@ -18,11 +18,9 @@ export function LobbyProvider({children}) {
     const [map, setMap] = useState();
 
     useEffect(()=>{
-        console.log(socket);
         if (!connected) return
         
         socket.on('join-lobby', ({err, data})=>{
-            console.log('trying to join');
             if (err) return console.log(err);
             console.log(data);
 
@@ -34,21 +32,31 @@ export function LobbyProvider({children}) {
 
 
         socket.on('map-update', (map) => setMap(map))
-        socket.on('player-update', (player) => setPlayers(player))
+        socket.on('player-update', ({players}) => setPlayers(players))
         socket.on('room-update', (room) => setRoom(room))
 
         return () =>{
-            socket.off('lobby-connect')
+            resetValues();
             socket.off('map-update')
             socket.off('player-update')
             socket.off('room-update')
         }
     }, [connected]);
 
+    const resetValues = useCallback(()=>{
+        setPlayers(null);
+        setMap(null);
+        setRoom(null);
+        
+    })
+
     const joinLobby = useCallback((lobbyId) => {
-        console.log(lobbyId);
-        console.log('click join lobby');
         socket.emit('join-lobby', lobbyId)
+    })
+
+    const leaveLobby = useCallback((lobbyId) => {
+        socket.emit('leave-lobby', lobbyId)
+        resetValues();
     })
 
     function createLobby(){
@@ -65,6 +73,7 @@ export function LobbyProvider({children}) {
 
     const value = {
         joinLobby,
+        leaveLobby,
         createLobby,
         players,
         room,

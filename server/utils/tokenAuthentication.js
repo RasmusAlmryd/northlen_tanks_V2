@@ -26,6 +26,7 @@ export function tokenAuth(req, res, next) {
     }) 
 }
 
+
 export function getTokenData(token){
     var data = null
     jwt.verify(token, process.env.JWT_SECRET, (err, response) =>{

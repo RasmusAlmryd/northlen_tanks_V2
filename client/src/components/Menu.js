@@ -14,11 +14,9 @@ export default function Menu() {
     function hostGame(){
         createLobby()
         .then(async (response) => {
-            console.log(response.status);
             if (response.status === 200) {
                 let data = await response.json()
-                console.log(data);
-                joinLobby(data.lobby)
+                // joinLobby(data.lobby)
                 navigate(`/lobby?code=${data.lobby}`)
             }
         }).catch((error) => {

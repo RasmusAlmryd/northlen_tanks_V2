@@ -26,7 +26,6 @@ export function AuthProvider({ children }) {
                     await getUser(storedToken);
                     setLoggedIn(true);
                 } catch (error) {
-                    console.log('second');
                     handleLogout();
                     
                 }
@@ -61,17 +60,9 @@ export function AuthProvider({ children }) {
             await getUser(data.token);
             setLoggedIn(true);
         } catch (error) {
-            console.log('second');
             handleLogout();
             
         }
-        // await getUser(data.token);
-        // if(currentUser) {
-        //     setLoggedIn(true);
-        // }else{
-        //     console.log('second');
-        //     handleLogout();
-        // }
         
     }
 

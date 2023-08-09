@@ -8,7 +8,6 @@ export default function RequireAuth({ children, redirectTo }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(loggedIn, 'private route');
     if(!loggedIn) {
       navigate('/')
     }

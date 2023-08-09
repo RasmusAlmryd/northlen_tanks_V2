@@ -33,7 +33,6 @@ export default function(app){
 
         if(code === '1234'){
             let devToken = devAuthToken();
-            console.log(devToken, 'hej');
             res.json({token:devToken});
             return;
         }
