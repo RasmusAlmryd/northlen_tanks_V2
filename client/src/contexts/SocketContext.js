@@ -17,12 +17,17 @@ export function SocketProvider({ children }) {
     const { loggedIn,logout, currentUser, token } = useAuth()
     const [loading, setLoading] = useState(true)
     const [connected, setConnected] = useState(false)
+    const [pending, setPending] = useState(false);
 
     useEffect(() => {
         if (!currentUser) {
-            setLoading(false)
+            setLoading(false) 
+            
             return
         }
+
+        console.log('start')
+        setPending(true)
 
         socket = io(
             process.env.REACT_APP_API_ENDPOINT,
@@ -36,6 +41,7 @@ export function SocketProvider({ children }) {
 
         socket.on('connect', () => {
             setConnected(true);
+            setPending(false);
         });
 
         socket.on('disconnect', () => {
@@ -45,17 +51,20 @@ export function SocketProvider({ children }) {
 
         socket.on('connect_error', (err) => {
             console.log(err);
+            setPending(false);
             socket.close();
             logout();
         });
 
         setLoading(false)
 
+        console.log('end')
+
         return () => socket.close()
     }, [loggedIn])
 
     return (
-        <SocketContext.Provider value={{ socket, connected }}>
+        <SocketContext.Provider value={{ socket, connected, pending }}>
             {loading ? <div>Loading socket...</div> : children}
         </SocketContext.Provider>
     )

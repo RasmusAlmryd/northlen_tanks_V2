@@ -1,0 +1,4 @@
+{
+    "ticks_per_second" : 30 ,
+    "sync_interval_ms" : 1000
+}

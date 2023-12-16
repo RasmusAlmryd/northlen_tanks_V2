@@ -30,7 +30,7 @@ export default function Menu() {
                 <Row>
                     <Col><BigButton title='Hoast Game' image={'./repeatingBg.png'} handleClick={hostGame}/></Col>
                     <Col><BigButton title='Join lobby' image={'./repeatingBg.png'} handleClick={() => navigate('/lobby')}/></Col>
-                    <Col><BigButton title='Customize' image={'./repeatingBg.png'} handleClick={() => alert('no customization yet')}/></Col>
+                    {/* <Col><BigButton title='Customize' image={'./repeatingBg.png'} handleClick={() => alert('no customization yet')}/></Col> */}
                 </Row>
             </Container>
             <Button variant='primary' size='lg' onClick={logout}>Logout</Button>

@@ -25,7 +25,6 @@ export default function(app){
         
         var code = req.body?.code;
 
-
         if(!code){
             res.status(400);
             return res.send('Bad Request: code parameter not set');

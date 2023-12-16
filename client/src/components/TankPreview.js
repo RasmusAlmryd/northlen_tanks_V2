@@ -20,14 +20,19 @@ export default function({mainColor, size}){
     const lightColor = '#b3202a';
     const darkColor = '#73172d';
     const shadowValue = 30;
+    var context = null;
 
 
     useEffect(() =>{
-        const context = canvas.current.getContext("2d");
+        if (!context) context = canvas.current.getContext("2d", {willReadFrequently :true});
+
+        context.clearRect(0, 0, canvas.current.width, canvas.current.height);
+
         context.imageSmoothingEnabled = false;
         const image = new Image();
         
-        image.src = process.env.PUBLIC_URL + "/tankPreview.png"
+        image.crossOrigin = "Anonymous";
+        image.src = process.env.REACT_APP_API_ENDPOINT + "/sprites/tankPreview.png"
         image.onload = () =>{
             context.drawImage(image, 0, 0, size, size);
             const imgData = context.getImageData(0, 0, size, size);
@@ -39,14 +44,14 @@ export default function({mainColor, size}){
 
             for(let i = 0; i < data.length; i += 4){
                 
-                if(data[i] == lightColorRGB.r && data[i+1] == lightColorRGB.g && data[i+2] == lightColorRGB.b){
+                if(data[i] === lightColorRGB.r && data[i+1] === lightColorRGB.g && data[i+2] === lightColorRGB.b){
                     data[i] = mainColorRGB.r;
                     data[i+1] = mainColorRGB.g
                     data[i+2] = mainColorRGB.b
                     continue;
                 }
 
-                if(data[i] == darkColorRGB.r && data[i+1] == darkColorRGB.g && data[i+2] == darkColorRGB.b){
+                if(data[i] === darkColorRGB.r && data[i+1] === darkColorRGB.g && data[i+2] === darkColorRGB.b){
                     data[i] = mainColorRGB.r - shadowValue;
                     data[i+1] = mainColorRGB.g - shadowValue;
                     data[i+2] = mainColorRGB.b - shadowValue;
@@ -56,8 +61,9 @@ export default function({mainColor, size}){
             context.putImageData(imgData, 0,0)
         }
         
-    }, [])
+    }, [mainColor])
 
+    
     return(
         <canvas ref={canvas} width={size} height={size}/>
     )

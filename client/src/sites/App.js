@@ -10,6 +10,7 @@ import Menu from "./Menu";
 import Lobby from "./Lobby";
 import Login from "./Login";
 import DiscordRedirect from "./DiscordRedirect";
+import GameContainer from "./GameContainer";
 
 
 function App() {
@@ -34,6 +35,13 @@ function App() {
                     <PrivateRoute redirectTo='/'>
                       <Lobby/>
                     </PrivateRoute>}/>
+                    <Route 
+                  path="/game" 
+                  element={
+                    <PrivateRoute redirectTo='/'>
+                      <GameContainer/>
+                    </PrivateRoute>
+                  }/>
               </Routes>
             </Router>
         </LobbyProvider>

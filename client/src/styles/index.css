@@ -3,3 +3,7 @@ body{
     margin: 0px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+#root {
+    background-color: #ffffff;
+}

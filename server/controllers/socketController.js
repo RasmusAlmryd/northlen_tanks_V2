@@ -18,9 +18,11 @@ export default function(io, socket, lobbies){
             return;
         }
         
+        /*
         if(lobby.hasPlayer(socket.user.id)){
             socket.user.lobby = lobby.id;
             disconnectHandler.removeDisconnectEvent("" + socket.user.id + socket.user.lobby)
+            socket.join(`lobby-${socket.user.lobby}`)
             let data = {
                 players: lobby.players,
                 room: {
@@ -32,7 +34,21 @@ export default function(io, socket, lobbies){
             socket.emit('join-lobby', ({err: null, data}))
             return;
         }
-        
+        */
+
+        if(lobby.hasPlayer(socket.user.id)){
+            let data = {
+                players: lobby.players,
+                room: {
+                    id: lobby.id,
+                    host: lobby.host
+                },
+                map: lobby.map,
+            }
+            socket.emit('join-lobby', ({err: null, data}))
+            return;
+        }
+
         try {
             //adding player to lobbies
             let player = {
@@ -41,11 +57,12 @@ export default function(io, socket, lobbies){
                 global_name: socket.user.global_name,
                 avatar: socket.user.avatar,
                 ready: false,
-                color: '#ffffff'
+                color: lobby.getRandomColor()
             }
             lobby.addPlayer(player)
             socket.user.lobby = lobby.id;
-        }catch{
+        }catch(error){
+            console.log(error);
             console.log('full lobby');
             socket.emit('join-lobby', ({err: 'lobby is full', data: null}))
             return;
@@ -67,60 +84,54 @@ export default function(io, socket, lobbies){
         
     })
 
-    socket.on('leave-lobby', (id) => {
-        id = parseInt(id);
-        leaveLobby(id)
+    socket.on('leave-lobby', () => {
+        // id = parseInt(id);
+        if(!socket.user.lobby) return;
+        leaveLobby(socket.user.lobby)
     })
 
-    socket.on('set-ready', (id, state) => {
-        let lobby = lobbies.find(element => element.id === id)
+    socket.on('set-state', (state) => {
+        
+        if(!socket.user.lobby) return;
 
-        lobby.setReady(id, state);
+        if(typeof state !== 'boolean') return;
+
+        let lobby = lobbies.find(element => element.id === socket.user.lobby)
+
+        lobby.setReady(socket.user.id, state);
+
+        io.in(`lobby-${lobby.id}`).emit('player-update', {players: lobby.players});
     })
 
     socket.on('change-color', (color) =>{
         if(!socket.user.lobby) return;
 
-        if(!supportedColors.includes(color)) return;
+        if(typeof color !== 'string') return;
 
-        let lobby = lobbies.find(element => element.id === id)
+        if(!supportedColors().includes(color)) return;
 
-        lobby.setPlayerColor(socket.user.id, color);
 
-        socket.to(`lobby-${lobby.id}`).emit('player-update', {players: lobby.players});
-    })
+        let lobby = lobbies.find(element => element.id === socket.user.lobby)
 
-    socket.on('start-game', (id) => {
+        if(!lobby.setPlayerColor(socket.user.id, color)) return;
         
-        let lobby = lobbies.find(element => element.id === id)
-
-        if (!lobby){
-            socket.emit('start-game', {err: 'lobby not found', data: null})
-            return;
-        }
-
-        if(lobby.host !== socket.user.id){
-            socket.emit('start-game', {err: 'action not allowed', data: null})
-            return;
-        }
-
-        if(!lobby.allReady){
-            socket.emit('start-game', {err: 'all players not ready', data: null})
-        }
-
-        lobby.game = 'GAME' // Create game object
-        socket.to(`lobby-${lobby.id}`).emit('start-game', {err: null, data: id})
+        io.in(`lobby-${lobby.id}`).emit('player-update', {players: lobby.players});
     })
 
+    
+    
     socket.on('disconnect', (reason) =>{
         console.log('socket: ', socket.id, ' disconnected');
 
         disconnectHandler.addDisconnectEvent(()=>{
             if(socket.user.lobby) leaveLobby(socket.user.lobby)
         },
-        ("" + socket.user.id + socket.user.lobby),
-        2000)
+        socket.user.id,
+        2000,
+        {'lobby': socket.user.lobby})
     } );
+
+    // ("" + socket.user.id + socket.user.lobby)
 
     async function leaveLobby(id){
         let lobby = lobbies.find(element => element.id === id)
