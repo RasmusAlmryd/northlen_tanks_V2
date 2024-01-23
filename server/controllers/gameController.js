@@ -37,8 +37,7 @@ export default function(io, socket, lobbies){
             return;
         }
         
-        console.log(lobby.game);
-        if(!lobby.game){
+        if(lobby.game){
             socket.emit('game-launch', {err: 'game already in progress', data: null})
             return;
         }
@@ -46,7 +45,6 @@ export default function(io, socket, lobbies){
         
 
         mapId = 'map1_4player' // TODO: remove
-        console.log('najjjjjj');
 
         fs.readFile(`../server/public/map/tilemaps/${mapId}.json`)
             .then((data)=>{
@@ -56,6 +54,8 @@ export default function(io, socket, lobbies){
                 let players = lobby.players.map(player =>{return new Player(player.username, player.id)});
 
                 lobby.game = new Game(players, map);
+                updateMap.set(lobby.id, new serverGameLogic(lobby, lobby.game, socket, io))
+                // updateMap.set(lobby.id, () => gameUpdate(lobby.game))
                 io.in(`lobby-${lobby.id}`).emit('game-launch', {err: null, data: socket.user.lobby})
             }).catch((err)=>{
                 console.log(err);
@@ -109,10 +109,10 @@ export default function(io, socket, lobbies){
         if(index < 0) return;
         
         lobby.game.players[index].ready = ready;
-        if(checkAllReady(lobby.game.players)){
-            lobby.game.start();
-            updateMap.set(lobby.id, () => gameUpdate(lobby.game))
-        }
+        // if(checkAllReady(lobby.game.players)){
+        //     //lobby.game.start();
+        //     updateMap.set(lobby.id, () => gameUpdate(lobby.game))
+        // }
     })
 
     socket.on('update-input', (input) =>{
@@ -121,8 +121,8 @@ export default function(io, socket, lobbies){
 
 
     function updateAllGames(){
-        updateMap.forEach((updateCallback, keys) => {
-            updateCallback();
+        updateMap.forEach((gameLogic, keys) => {
+            gameLogic.update();
         });
     }
 
@@ -174,6 +174,8 @@ class serverGameLogic{
 
     update(){
         let deltaTime = Date.now() - this.#lastTimeUpdate;
+        this.#lastTimeUpdate = Date.now();
+
 
         switch(this.gameState){
             case States.Waiting:
@@ -186,6 +188,7 @@ class serverGameLogic{
                 }
                 if(allReady){
                     this.gameState = States.Ready;
+                    console.log('ready?: ', allReady);
                     this.io.in(`lobby-${lobby.id}`).emit('stateChange', State.Ready);
                     //this.#sendEvent(Events.GameStateUpdate);
                     this.countdown = this.#contdownDuration * 1000; // in milliseconds

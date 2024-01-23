@@ -51,7 +51,7 @@ export default function(){
                     return;
                 }
 
-                game = new Game(playersObjs, map, socket);
+                game = new Game(playersObjs, map);
                 // setGame(new Game(players, map));
 
 
@@ -84,7 +84,9 @@ export default function(){
 
                 phaserGame = new Phaser.Game(phaserConfig);
                 phaserGame.scene.start('MainScene', game)
-                commLogic = new CommunicationLogic(game, socket);
+                //commLogic = new CommunicationLogic(game, socket);
+
+                socket.emit('game-ready', true)
             }
 
             asyncExecute();

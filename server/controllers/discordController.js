@@ -223,8 +223,5 @@ export default function(app){
         // }
     });
     
-    app.get('/test', (req, res) => {
-        console.log(req.cookies.state);
-        res.json({ success: true})
-    })
+
 }

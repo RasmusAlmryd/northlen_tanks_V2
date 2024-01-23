@@ -12,18 +12,16 @@ class Game{
     //lastTimeUpdate = 0;
 
 
-    constructor(players, map, socket) {
+    constructor(players, map) {
         this.players = players;
         this.map = map;
         this.gameState = 'waiting'
         this.entities = [];
-        this.socket = socket;
-
        
     }
 
-    Start() {
-        let spawnPoints = this.map.spawnPoints;
+    start() {
+        /*let spawnPoints = this.map.spawnPoints;
 
         this.socket.on('countdownUpdate', count => {
             console.log('count: ' + count);
@@ -36,7 +34,7 @@ class Game{
         this.socket.on('synchronization', (players) =>{
             // add list of tank real positions and their current positions
             // interpolate between the positions in the duration of synch
-        })
+        })*/
     }
 
     update(deltaTime){
