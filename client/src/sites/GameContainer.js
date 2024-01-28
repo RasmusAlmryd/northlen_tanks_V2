@@ -1,14 +1,16 @@
 import {useEffect, useState} from "react";
 import { useSocket } from '../contexts/SocketContext'
+import { useAuth } from '../contexts/AuthContext';
 import Phaser from 'phaser'
 import '../styles/gameContainer.css'
 import { MainScene } from "../Scenes/mainScene";
+import CommunicationLogic from "../scripts/communicationLogic.js";
 
 export default function(){
     //const [game, setGame] = useState();
     const [loading, setLoading] = useState();
     const {socket,connected} = useSocket();
-    // const {currentUser} = useAuth()
+    const {currentUser} = useAuth()
 
     //useExternalScript(`${process.env.REACT_APP_API_ENDPOINT}/scripts/game.js`);
     //useExternalScript(`${process.env.REACT_APP_API_ENDPOINT}/scripts/gameMap.js`);
@@ -26,7 +28,7 @@ export default function(){
         socket.emit('game-load');
 
         socket.on('game-load', ({err, data})=>{
-            console.log(err, data);
+            // console.log(err, data);
             if(err) return;
 
             let asyncExecute = async () => {
@@ -34,12 +36,15 @@ export default function(){
                 const GameMap = (await import(`${process.env.REACT_APP_API_ENDPOINT}/scripts/gameMap.js`)).default;
                 const Player = (await import(`${process.env.REACT_APP_API_ENDPOINT}/scripts/player.js`)).default;
                 const Tank = (await import(`${process.env.REACT_APP_API_ENDPOINT}/scripts/tank.js`)).default;
+                const Serializer = (await import(`${process.env.REACT_APP_API_ENDPOINT}/scripts/Serializer.js`)).default;
 
                 let players = data.players;
                 let mapId = data.map;
                 let metaData = data.metaData;
 
-                let playersObjs = players.map( player => new Player(player.name, player.id));
+                
+                let playerClassObjs = Serializer.deserialize(players);
+
 
                 let map;
                 try {
@@ -51,14 +56,13 @@ export default function(){
                     return;
                 }
 
-                game = new Game(playersObjs, map);
+                game = new Game(playerClassObjs, map);
                 // setGame(new Game(players, map));
 
 
                 let width = map.width * map.tileWidth;
                 let height = map.height * map.tileHeight;
 
-                console.log(width, height);
 
                 let phaserConfig = {
                     type: Phaser.AUTO,
@@ -83,8 +87,8 @@ export default function(){
                 };
 
                 phaserGame = new Phaser.Game(phaserConfig);
-                phaserGame.scene.start('MainScene', game)
-                //commLogic = new CommunicationLogic(game, socket);
+                phaserGame.scene.start('MainScene', {game, playerID: currentUser.id})
+                commLogic = new CommunicationLogic(game, socket, metaData, currentUser.id);
 
                 socket.emit('game-ready', true)
             }
@@ -94,6 +98,7 @@ export default function(){
 
         return () => {
             phaserGame.destroy(true, false);
+            commLogic.destroy();
         }
     }, [])
 

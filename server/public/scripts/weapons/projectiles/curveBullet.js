@@ -1,4 +1,4 @@
-import SimpleBullet from "./simpleBullet";
+import SimpleBullet from "./simpleBullet.js";
 
 export default class CurveBullet extends SimpleBullet {
     #rotationSpeed

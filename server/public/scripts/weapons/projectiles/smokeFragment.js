@@ -1,4 +1,4 @@
-import GameEntity from "../../gameEntity";
+import GameEntity from "../../gameEntity.js";
 
 export default class SmokeFragment extends GameEntity {
     #sizeVelocity = 0;

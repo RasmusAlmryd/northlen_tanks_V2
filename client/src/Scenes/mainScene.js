@@ -6,9 +6,9 @@ export class MainScene extends Phaser.Scene{
         super('MainScene')
     }
 
-    init(game){
-        this.gameObject = game
-        console.log(this.gameObject.map);
+    init({game, playerID}){
+        this.gameObject = game;
+        this.playerID = playerID;
     }
 
     preload(){
@@ -89,40 +89,52 @@ export class MainScene extends Phaser.Scene{
 
     update (time, delta)
     {
+        
+
+        let localPlayer = this.gameObject.players.find(player => player.id == this.playerID);
+
         this.tank.depth = this.tank.y
-        // if (Phaser.Input.Keyboard.JustDown(Phaser.Input.Keyboard.KeyCodes.LEFT))
-        // {
-        //     this.tank.x -= this.speed * delta;
-        // }
-        // else if (Phaser.Input.Keyboard.JustDown(Phaser.Input.Keyboard.KeyCodes.RIGHT))
-        // {
-        //     this.tank.x += this.speed * delta;
-        // }
+        this.tank.x = Math.round(localPlayer.tank.x);
+        this.tank.y = Math.round(localPlayer.tank.y);
 
-        // if (Phaser.Input.Keyboard.JustDown(Phaser.Input.Keyboard.KeyCodes.UP))
-        // {
-        //     this.tank.y -= this.speed * delta;
-        // }
-        // else if (Phaser.Input.Keyboard.JustDown(Phaser.Input.Keyboard.KeyCodes.DOWN))
-        // {
-        //     this.tank.y += this.speed * delta;
-        // }
-        // console.log(this.speed*delta);
-
-        let move = this.speed*delta
+        let left = false;
+        let right  = false;
+        let up = false;
+        let down = false;
 
         if (this.cursors.right.isDown) {
-            this.tank.x += move//this.speed * delta;
-          }
-          if (this.cursors.left.isDown) {
-            this.tank.x -= move//this.speed * delta;
-          }
-          if (this.cursors.up.isDown) {
-            this.tank.y -= move//this.speed * delta;
-          }
-          if (this.cursors.down.isDown) {
-            this.tank.y += move//this.speed * delta;
-          }
+            // this.tank.x += move//this.speed * delta;
+            right = true;
+        }
+        else{
+            right = false;
+        }
+
+        if (this.cursors.left.isDown) {
+            // this.tank.x -= move//this.speed * delta;
+            left = true;
+        }
+        else{
+            left = false;
+        }
+
+        if (this.cursors.up.isDown) {
+            // this.tank.y -= move//this.speed * delta;
+            up = true;
+        }
+        else{
+            up = false;
+        }
+
+        if (this.cursors.down.isDown) {
+            // this.tank.y += move//this.speed * delta;
+            down = true;
+        }
+        else{
+            down = false;
+        }
+
+        this.gameObject.updateInput(this.playerID, up, down, left, right);
 
     
     }

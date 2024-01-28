@@ -6,10 +6,10 @@ export default class GameMap{
     constructor(mapData, id){
         this.mapData = mapData;
         this.id = id;
-        this.tileHeight = mapData.tileheight;
-        this.tileWidth = mapData.tilewidth;
-        this.height = mapData.height;
-        this.width = mapData.width;
+        this.tileHeight = mapData.tileheight; // height in pixels of one tile
+        this.tileWidth = mapData.tilewidth; // width in pixels of one tile
+        this.height = mapData.height; // number of tiles vertically
+        this.width = mapData.width; // number of tiles horizontally
         this.walls = this.#getWalls();
         this.powerUpPositions = this.#getPowerUpPositions();
         this.spawnPoints = this.#getSpawnPoints();
@@ -25,10 +25,11 @@ export default class GameMap{
             if(layer.name.includes('wallCollision')){
                 for(var y = 0; y < layer.height; y++){
                     for(var x = 0; x < layer.width; x++){
-                        if(layer.data[y][x] !== 195) continue;
+                        let index = y * layer.width + x
+                        if(layer.data[index] !== 195) continue;
 
                         walls.push(new GameEntity(
-                            x*this.tileHeight+xOffset,
+                            x*this.tileWidth+xOffset,
                             y*this.tileHeight+yOffset,
                             this.tileWidth,
                             this.tileHeight
@@ -46,7 +47,25 @@ export default class GameMap{
     }
 
     #getSpawnPoints(){
-        let points = [0,0,0];
+        let spawnPointLayer = this.mapData.layers.find(layer => layer.name == 'spawnpoints')
+        let points = []
+
+        let xOffset = this.tileWidth / 2;
+        let yOffset = this.tileHeight / 2;
+        
+        for(var y = 0; y < spawnPointLayer.height; y++){
+            for(var x = 0; x < spawnPointLayer.width; x++){
+                let index = y * spawnPointLayer.width + x
+                if(spawnPointLayer.data[index] !== 195) continue;
+
+                points.push({
+                    'x': x*this.tileWidth+xOffset,
+                    'y': y*this.tileHeight+yOffset,
+                })
+            }
+        }
+
+        
         return points;
     }
 }

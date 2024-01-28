@@ -1,4 +1,4 @@
-import SimpleBullet from "./projectiles.js/simpleBullet";
+import SimpleBullet from "./projectiles/simpleBullet.js";
 
 
 class Weapon{
@@ -13,7 +13,7 @@ class Weapon{
      * @param {String} name for weapon
      * @param {Number} x 
      * @param {Number} y 
-     * @param {Number} angle rotation of weapon
+     * @param {Number} angle rotation of weapon in degrees
      * @param {Number} playerSize is measurement of player
      */
     constructor(name, x, y, angle, playerSize){
@@ -26,6 +26,13 @@ class Weapon{
 
     get name(){
         return this.#name;
+    }
+
+    /**
+     * @param {String} rotation in degrees
+     */
+    set rotation(rotation){
+        this.angle = angle
     }
 
     spawnProjectile(){
@@ -48,11 +55,14 @@ class SimpleWeapon extends Weapon{
 
 class WeaponFactory{
 
-    static getStandardGun(){
-
+    static getStandardGun(x, y, angle, playerSize){
+        return new SimpleWeapon(x, y, angle, playerSize)
     }
+
     static getCurveGun(){
         let gun = new Weapon()
     }
 
 }
+
+export {WeaponFactory, SimpleWeapon, Weapon}

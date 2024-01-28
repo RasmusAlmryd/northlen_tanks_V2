@@ -2,9 +2,10 @@
 export default class Player{
 
 
-    constructor(name, id){
+    constructor(name, id, color){
         this.name = name;
         this.id = id;
+        this.color = color;
         this.tank = null;
         this.alive = true;
         this.points = 0;
