@@ -2,18 +2,27 @@
 import Phaser from 'phaser'
 
 export class MainScene extends Phaser.Scene{
+
+    fakeDeltaTime = 0;
+    oldX = null
+    oldY = null
+
+    tanks = new Map();
+
     constructor(){
         super('MainScene')
     }
 
-    init({game, playerID}){
+    init({game, playerID, metaData}){
         this.gameObject = game;
         this.playerID = playerID;
+        this.metaData = metaData;
     }
 
     preload(){
         console.log('hej');
-        this.load.image('tank', process.env.REACT_APP_API_ENDPOINT + "/sprites/tankPreview.png")
+        this.load.spritesheet('tank', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", { frameWidth: 70, frameHeight: 70 })
+        this.numTankBodyFrames = 32;
         // this.load.image('wall', process.env.PUBLIC_URL + "/wall.png.")
         this.load.image('TXgrass', process.env.REACT_APP_API_ENDPOINT + '/map/textures/TXGrass.png')
         this.load.image('TXprops', process.env.REACT_APP_API_ENDPOINT + '/map/textures/TXProps.png')
@@ -73,14 +82,34 @@ export class MainScene extends Phaser.Scene{
 
         // this.scale.on('resize', this.resize, this);
 
-        // console.log(map.tileWidth, map.tileHeight);
-        const tankSpriteScale = 0.8;
+        let tankSpriteScaling = 1.9;
+        const tank = 1;
 
-        this.tank = this.physics.add.image(100,100, 'tank').setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight)
+        // console.log(map.tileWidth, map.tileHeight);
+
+        this.gameObject.players.forEach(player => {
+            console.log(player.tank.width, player.tank.height);
+            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank',0 )//.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight,true).setScale(tankSpriteScale, tankSpriteScale)
+            tank.displayHeight = player.tank.height*tankSpriteScaling
+            tank.displayWidth =player.tank.width*tankSpriteScaling
+            // tank.setSize(player.tank.width, player.tank.height, true)
+            tank.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
+            
+            this.tanks.set(player.id, tank);
+        });
+        
+
+        /*this.tank = this.physics.add.image(50,50, 'tank',0 ).setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight,true).setScale(tankSpriteScale, tankSpriteScale)
+        this.tank.displayHeight = this.gameObject.map.tileHeight*2*tankSpriteScale
+        this.tank.displayWidth = this.gameObject.map.tileWidth*2*tankSpriteScale*/
+        
+        //this.tank.width = this.gameObject.map.tileWidth*0.75;
+        //this.tank.height = this.gameObject.map.tileHeight*0.75;
         // this.tank.ssetVelocity(20,20)
         this.speed = 0.1;
 
         this.cursors = this.input.keyboard.createCursorKeys()
+
     }
 
     // update(){
@@ -89,13 +118,51 @@ export class MainScene extends Phaser.Scene{
 
     update (time, delta)
     {
+        // console.log('Scene: ', delta);
+        // this.fakeDeltaTime += delta;
+        // console.log(this.tank);
         
+        // let deltaFactor = this.fakeDeltaTime/(1000/this.metaData.ticksPerSecond);
+
+        this.gameObject.players.forEach(player => {
+            this.tanks.get(player.id).depth = this.tanks.get(player.id).y
+            let degrees = player.tank.rotation > 0 ? player.tank.rotation : 360 + player.tank.rotation
+            let frameIndex = (Math.floor(degrees * 32/360) + 16)%32
+            // console.log(localPlayer.tank.rotation, degrees, 32/360, frameIndex);
+            this.tanks.get(player.id).setFrame(frameIndex);
+
+            this.tanks.get(player.id).x = player.tank.x;
+            this.tanks.get(player.id).y = player.tank.y;
+        })
 
         let localPlayer = this.gameObject.players.find(player => player.id == this.playerID);
 
-        this.tank.depth = this.tank.y
-        this.tank.x = Math.round(localPlayer.tank.x);
-        this.tank.y = Math.round(localPlayer.tank.y);
+        
+
+
+        // if(!this.oldX || ! this.oldY){
+        //     this.oldX = localPlayer.tank.x;
+        //     this.oldY = localPlayer.tank.y;
+        // }
+
+        // console.log(this.fakeDeltaTime);
+        // if(this.fakeDeltaTime > 1000/this.metaData.ticksPerSecond){
+        //     this.fakeDeltaTime -= 1000/this.metaData.ticksPerSecond
+        //     this.oldX = localPlayer.tank.x;
+        //     this.oldY = localPlayer.tank.y;
+        // }
+
+        // if(Math.pow(localPlayer.tank.x-this.oldX, 2) + Math.pow(localPlayer.tank.y-this.oldY, 2,) < 1){
+        //     oldY = localPlayer.tank.x;
+
+        // }
+        // this.tank.x = this.oldX * deltaFactor + (1-deltaFactor) * localPlayer.tank.x;
+        // this.tank.y = this.oldY * deltaFactor + (1-deltaFactor) * localPlayer.tank.y;
+
+        
+        
+        
+        // let move = this.speed*delta
 
         let left = false;
         let right  = false;

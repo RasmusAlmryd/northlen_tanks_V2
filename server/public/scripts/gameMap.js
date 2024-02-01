@@ -3,6 +3,8 @@ import GameEntity from "./gameEntity.js";
 
 export default class GameMap{
 
+    #spatialWallArray;
+
     constructor(mapData, id){
         this.mapData = mapData;
         this.id = id;
@@ -10,9 +12,16 @@ export default class GameMap{
         this.tileWidth = mapData.tilewidth; // width in pixels of one tile
         this.height = mapData.height; // number of tiles vertically
         this.width = mapData.width; // number of tiles horizontally
-        this.walls = this.#getWalls();
+        this.walls = []
+        this.#spatialWallArray = []
+        this.#getWalls();
         this.powerUpPositions = this.#getPowerUpPositions();
         this.spawnPoints = this.#getSpawnPoints();
+    }
+
+    getWall(x, y){
+        if(x < 0 || x >= this.width || y < 0 || y >= this.height) return null;
+        return this.#spatialWallArray[y][x]
     }
 
     #getWalls(){
@@ -24,22 +33,32 @@ export default class GameMap{
         this.mapData.layers.forEach(layer => {
             if(layer.name.includes('wallCollision')){
                 for(var y = 0; y < layer.height; y++){
+                    let row = []
                     for(var x = 0; x < layer.width; x++){
                         let index = y * layer.width + x
-                        if(layer.data[index] !== 195) continue;
+                        if(layer.data[index] !== 195) {
+                            row.push(null);
+                            continue;
+                        }
 
-                        walls.push(new GameEntity(
+                        let entity = new GameEntity(
                             x*this.tileWidth+xOffset,
                             y*this.tileHeight+yOffset,
                             this.tileWidth,
                             this.tileHeight
-                        ));
+                        );
+
+                        walls.push(entity);
+                        row.push(entity);
                     }
+                    this.#spatialWallArray.push(row);
                 }
             }
         });
-        return walls;
+        this.walls = walls;
     }
+
+
 
     #getPowerUpPositions(){
         let powerUps = [];

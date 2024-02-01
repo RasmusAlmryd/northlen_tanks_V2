@@ -3,7 +3,7 @@ import GameEntity from "./gameEntity.js";
 export default class Tank extends GameEntity {
 
     speed = 0.1
-    rotationSpeed = 1
+    rotationSpeed = 1.5
 
     constructor(x, y, width, height, weapon) {
         super(x,y,width, height);

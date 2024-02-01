@@ -71,7 +71,6 @@ export default class CommunicationLogic{
     }
 
     update(dt){
-
         if(this.game.gameState !== 'running') return;
         this.game.update(dt)
 

@@ -41,6 +41,7 @@ export default function(){
                 let players = data.players;
                 let mapId = data.map;
                 let metaData = data.metaData;
+                let state = data.state;
 
                 
                 let playerClassObjs = Serializer.deserialize(players);
@@ -57,6 +58,7 @@ export default function(){
                 }
 
                 game = new Game(playerClassObjs, map);
+                game.gameState = state;
                 // setGame(new Game(players, map));
 
 
@@ -81,13 +83,14 @@ export default function(){
                         default: 'arcade',
                         arcade: {
                             debug: true,
-                            isDevelopment: true,
+                            isDevelopment: true
                         }
-                    }
+                    },
+                    fixedStep: false 
                 };
 
                 phaserGame = new Phaser.Game(phaserConfig);
-                phaserGame.scene.start('MainScene', {game, playerID: currentUser.id})
+                phaserGame.scene.start('MainScene', {game, playerID: currentUser.id, metaData})
                 commLogic = new CommunicationLogic(game, socket, metaData, currentUser.id);
 
                 socket.emit('game-ready', true)

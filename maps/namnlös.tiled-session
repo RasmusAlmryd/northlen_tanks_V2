@@ -14,10 +14,10 @@
         },
         "map1_4player.tmx": {
             "scale": 1.5,
-            "selectedLayer": 10,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 454,
-                "y": 220.66666666666663
+                "x": 452.66666666666663,
+                "y": 219.33333333333331
             }
         },
         "map1_4player.tmx#TX grass": {

@@ -93,10 +93,11 @@ export default function(io, socket, lobbies){
         
         
         let map = lobby.game.map.id;
+        let state = lobby.game.gameState
         let metaData = {ticksPerSecond, sync_interval};
         let serializedPlayers = Serializer.serialize(lobby.game.players)
 
-        socket.emit('game-load', {err: null, data: {'players': serializedPlayers, map, metaData}});
+        socket.emit('game-load', {err: null, data: {'players': serializedPlayers, map, state, metaData}});
     })
 
 
@@ -182,7 +183,6 @@ class serverGameLogic{
         this.lobby = lobby
         this.game = game;
         this.#lastTimeUpdate = Date.now();
-        this.gameState = States.Waiting
     }
 
     update(){
@@ -190,7 +190,7 @@ class serverGameLogic{
         this.#lastTimeUpdate = Date.now();
 
 
-        switch(this.gameState){
+        switch(this.game.gameState){
             case States.Waiting:
 
                 let allReady = true;
@@ -201,9 +201,9 @@ class serverGameLogic{
                     }
                 }
                 if(allReady){
-                    this.gameState = States.Ready;
+                    this.game.gameState = States.Ready;
                     this.io.in(`lobby-${this.lobby.id}`).emit('stateChange', States.Ready);
-                    //this.#sendEvent(Events.GameStateUpdate);
+                    //this.#sendEvent(Events.game.gameStateUpdate);
                     this.countdown = this.#contdownDuration * 1000; // in milliseconds
                     this.#lastSentCountdown = this.countdown + this.#maxClientDiffCountdown;
 
@@ -222,13 +222,12 @@ class serverGameLogic{
                 //to prevent sending countdown updates on every update tick. saving resources 
                 if(this.#lastSentCountdown - this.countdown > this.#maxClientDiffCountdown){
                     this.#lastSentCountdown = this.countdown;
-                    console.log(this.countdown);
                     this.io.in(`lobby-${this.lobby.id}`).emit('countdownUpdate', this.countdown);
                 }
 
                 //if countdown reaches zero, start game
                 if(this.countdown <= 0){
-                    this.gameState = States.Running;
+                    this.game.gameState = States.Running;
                     this.io.in(`lobby-${this.lobby.id}`).emit('stateChange', States.Running);
                 }
                 break;
@@ -248,11 +247,11 @@ class serverGameLogic{
                 if(numAlive <= 1){
                     if(this.currentRound < this.numRounds){
                         this.currentRound++;
-                        this.gameState = States.Ready;
+                        this.game.gameState = States.Ready;
                         this.io.in(`lobby-${this.lobby.id}`).emit('stateChange', States.Ready);
                         this.countdown = this.#contdownDurationBetweenRounds * 1000; // in milliseconds
                     }else{
-                        this.gameState = States.Ended;
+                        this.game.gameState = States.Ended;
                         this.io.in(`lobby-${this.lobby.id}`).emit('stateChange', States.Ended);
                     }
                     
@@ -275,7 +274,6 @@ class serverGameLogic{
                             }
                         }),
                     }
-                    // console.log(payload);
 
                     this.io.in(`lobby-${this.lobby.id}`).emit('synchronization', payload);
                     this.#lastSynchronized = 0;

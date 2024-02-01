@@ -18,7 +18,7 @@ class Game{
     constructor(players, map) {
         this.players = players;
         this.map = map;
-        this.gameState = 'waiting'
+        this.gameState = States.Waiting
         this.entities = [];
        
     }
@@ -93,70 +93,59 @@ class Game{
         }
 
         if(player.input.LEFT === true){
-            rotV += player.tank.rotationSpeed;
+            rotV -= player.tank.rotationSpeed;
         }
 
         if(player.input.RIGHT === true){
-            rotV -= player.tank.rotationSpeed;
+            rotV += player.tank.rotationSpeed;
         }
 
         
         player.tank.applyVelocityAccordingToRotation(vx, 0);
         player.tank.rotate(rotV);
 
-        /*
-        if(player.input.UP == up){
-            if(player.input.UP === true){
-                player.tank.applyVelocityAccordingToRotation(player.tank.forwardSpeed, 0);
-            }else{
-                player.tank.applyVelocityAccordingToRotation(0, 0);
-            }
-        }
-
-        
-
-        if(player.input.DOWN == down){
-            if(player.input.DOWN === true){
-                player.tank.applyVelocityAccordingToRotation(-player.tank.forwardSpeed, 0);
-            }else{
-                player.tank.applyVelocityAccordingToRotation(0, 0);
-            }
-        }
-
-        player.input.DOWN = down;
-        player.input.LEFT = left;
-        player.input.RIGHT = right;*/
     }
 
     update(deltaTime){
         //this.lastTimeUpdate = Date.now();
 
         for(let i = 0; i< this.players.length; i++){
+            let tank = this.players[i].tank;
+
+            tank.update(deltaTime);
+
+            let minX = tank.x-tank.width/2
+            let maxX = tank.x+tank.width/2
+            let minY = tank.y-tank.height/2
+            let maxY = tank.y+tank.height/2
+
             
-            /*let player = this.players[i];
-            if(player.input.UP === true){
-                player.tank.applyVelocityAccordingToRotation(player.tank.speed, 0);
-            }else{
-                player.tank.applyVelocityAccordingToRotation(0, 0);
+            let xCorrection = 0;
+            let yCorrection = 0;
+            let margin = 0;
+
+            for (let y = Math.floor(minY/this.map.tileHeight); y <= Math.floor(maxY/this.map.tileHeight); y++) {
+                for (let x = Math.floor(minX/this.map.tileWidth); x <= Math.floor(maxX/this.map.tileWidth); x++) {
+                    let wall = this.map.getWall(x, y);
+                    if(wall === null) continue;
+
+                    let xDiff = tank.x - wall.x;
+                    let yDiff = tank.y - wall.y;
+
+                    if(Math.abs(Math.abs(xDiff) - Math.abs(yDiff)) < 2) continue;
+
+                    if(Math.abs(xDiff) > Math.abs(yDiff)){
+                        let sign = Math.sign(xDiff);
+                        xCorrection = -sign * (Math.abs(xDiff) - (tank.width + wall.width)/2 + margin);
+
+                    }else{
+                        let sign = Math.sign(yDiff);
+                        yCorrection =  -sign * (Math.abs(yDiff) - (tank.height + wall.height)/2 + margin);
+                    }
+                }
             }
-
-            if(player.input.DOWN === true){
-                player.tank.applyVelocityAccordingToRotation(-player.tank.speed, 0);
-            }else{
-                player.tank.applyVelocityAccordingToRotation(0, 0);
-            }
-
-            if(player.input.LEFT === true){
-                // player.tank.rotate(player.tank.rotationSpeed);
-            }
-
-            if(player.input.RIGHT === true){
-                // player.tank.rotate(-player.tank.rotationSpeed);
-            }
-
-            */
-
-            this.players[i].tank.update(deltaTime);
+            tank.x += xCorrection;
+            tank.y += yCorrection;
         }
 
         for(let i = 0; i< this.entities.length; i++){

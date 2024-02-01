@@ -5,6 +5,10 @@ export default class GameEntity{
     height;
     x;
     y;
+
+    previousX;
+    previousX;
+
     #xVelocity = 0;
     #yVelocity = 0;
     #velocityRotation = 0;
@@ -14,6 +18,8 @@ export default class GameEntity{
 
     constructor( x = 0, y = 0, width, height, rotation = 0){
         this.x = x; this.y = y;
+        this.previousX = x;
+        this.previousY = y;
         this.width = width; this.height = height;
         this.velocityRotation = rotation;
     }
@@ -29,6 +35,7 @@ export default class GameEntity{
      */
     set velocityRotation(deg){
         deg = deg%360;
+        deg = deg >= 0 ? deg : 360 + deg 
         this.#velocityRotation = deg;
     }
 
@@ -43,9 +50,10 @@ export default class GameEntity{
 
     applyVelocityAccordingToRotation(vx, vy){
         this.#rotationAdjustedVelocityX = vx; this.#rotationAdjustedVelocityY = vy;
-        this.#xVelocity = vx * Math.cos(this.#degrees_to_radians(this.#velocityRotation)) - vy * Math.sin(this.#degrees_to_radians(this.#velocityRotation));
+        this.#xVelocity = vx * Math.cos(this.#degrees_to_radians(this.#velocityRotation)) + vy * Math.sin(this.#degrees_to_radians(this.#velocityRotation));
         this.#yVelocity = vy * Math.cos(this.#degrees_to_radians(this.#velocityRotation)) + vx * Math.sin(this.#degrees_to_radians(this.#velocityRotation));
-        console.log(this.#xVelocity,  this.#yVelocity);
+        // console.log(this.#degrees_to_radians(this.#velocityRotation)/Math.PI);
+        // console.log(this.#xVelocity,  this.#yVelocity);
     }
 
     rotateVelocityToAngle(deg){
@@ -54,6 +62,8 @@ export default class GameEntity{
     }
 
     update(delta){
+        this.previousX = this.x;
+        this.previousY = this.y;
         this.x += this.#xVelocity*delta;
         this.y += this.#yVelocity*delta;
     }
