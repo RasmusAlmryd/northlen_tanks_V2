@@ -1,5 +1,6 @@
 
 import Phaser from 'phaser'
+import ColorLoader from '../scripts/colorLoader';
 
 export class MainScene extends Phaser.Scene{
 
@@ -8,6 +9,7 @@ export class MainScene extends Phaser.Scene{
     oldY = null
 
     tanks = new Map();
+    turrets = new Map();
 
     constructor(){
         super('MainScene')
@@ -21,7 +23,18 @@ export class MainScene extends Phaser.Scene{
 
     preload(){
         console.log('hej');
-        this.load.spritesheet('tank', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", { frameWidth: 70, frameHeight: 70 })
+        // this.load.spritesheet('tank', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", { frameWidth: 70, frameHeight: 70 })
+        var tankImg = new Image();
+        tankImg.crossOrigin = "anonymous";
+        tankImg.onload = () =>{
+            
+            this.textures.addSpriteSheet('tank', tankImg, { frameWidth: 70, frameHeight: 70 });
+        }
+        tankImg.src = process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png"
+
+        ColorLoader.getSprites(this, process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", 'tank', ['#cc66c0'])
+
+        this.load.spritesheet('turret', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_turret.png", { frameWidth: 50, frameHeight: 50 })
         this.numTankBodyFrames = 32;
         // this.load.image('wall', process.env.PUBLIC_URL + "/wall.png.")
         this.load.image('TXgrass', process.env.REACT_APP_API_ENDPOINT + '/map/textures/TXGrass.png')
@@ -55,6 +68,10 @@ export class MainScene extends Phaser.Scene{
                         let tile = layer.data[y][x]
                         if(tile.index === -1) continue;
                         let wall = this.physics.add.staticSprite((x+0.5)*layer.tileWidth, (y+0.5)*layer.tileHeight,'TXpropsSheet', tile.index-1)
+                        if(tile.index === 154 || tile.index === 202){
+                            wall.depth = layer.height*layer.tileHeight*depthOverlap;
+                            continue;
+                        }
                         wall.depth = (y+0.5)*layer.tileHeight*depthOverlap
                         // this.wallGroup.get((x+0.5)*layer.tileWidth, (y+0.5)*layer.tileHeight, 'TXpropsSheet', tile.index-1)
                     }
@@ -70,45 +87,51 @@ export class MainScene extends Phaser.Scene{
                         // this.wallGroup.get((x+0.5)*layer.tileWidth, (y+0.5)*layer.tileHeight, 'TXpropsSheet', tile.index-1)
                     }
                 }
-            }else if (layer.name.includes('spawnpoints') || layer.name.includes('powerups')){
+            }else if (layer.name.includes('spawnpoints') || layer.name.includes('powerups') || layer.name.includes('wallCollisionwd')){
                 return;
             }else{
                 const l = map.createLayer(index, [grassTiles,propsTiles,wallsTiles,propShadowTiles], 0,0)
             }
             
             
-            // l.scale = 2
         })
 
-        // this.scale.on('resize', this.resize, this);
 
         let tankSpriteScaling = 1.9;
+        let turretSpriteScaling = 1.9;
         const tank = 1;
 
-        // console.log(map.tileWidth, map.tileHeight);
 
         this.gameObject.players.forEach(player => {
-            console.log(player.tank.width, player.tank.height);
-            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank',0 )//.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight,true).setScale(tankSpriteScale, tankSpriteScale)
-            tank.displayHeight = player.tank.height*tankSpriteScaling
-            tank.displayWidth =player.tank.width*tankSpriteScaling
+            // console.log(player.tank.width, player.tank.height);
+            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank',0 )
+            tank.setScale(this.gameObject.map.tileWidth/(player.tank.width*tankSpriteScaling));
+
+            // tank.displayHeight = player.tank.height*tankSpriteScaling
+            // tank.displayWidth =player.tank.width*tankSpriteScaling
             // tank.setSize(player.tank.width, player.tank.height, true)
-            tank.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
+            //tank.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
             
             this.tanks.set(player.id, tank);
+
+            let turret = this.physics.add.image(player.tank.turretX, player.tank.turretY, 'turret', 0 )
+            turret.setScale(this.gameObject.map.tileWidth/(player.tank.width*turretSpriteScaling))
+
+            // turret.displayHeight = player.tank.height*turretSpriteScaling
+            // turret.displayWidth =player.tank.width*turretSpriteScaling
+            // tank.setSize(player.tank.width, player.tank.height, true)
+            // //turret.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
+            
+            this.turrets.set(player.id, turret);
         });
         
 
-        /*this.tank = this.physics.add.image(50,50, 'tank',0 ).setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight,true).setScale(tankSpriteScale, tankSpriteScale)
-        this.tank.displayHeight = this.gameObject.map.tileHeight*2*tankSpriteScale
-        this.tank.displayWidth = this.gameObject.map.tileWidth*2*tankSpriteScale*/
-        
-        //this.tank.width = this.gameObject.map.tileWidth*0.75;
-        //this.tank.height = this.gameObject.map.tileHeight*0.75;
-        // this.tank.ssetVelocity(20,20)
+
         this.speed = 0.1;
 
         this.cursors = this.input.keyboard.createCursorKeys()
+        this.keys = this.input.keyboard.addKeys("W,A,S,D");
+// -> { W: Key, A: Key, S: Key, D: Key }
 
     }
 
@@ -118,58 +141,45 @@ export class MainScene extends Phaser.Scene{
 
     update (time, delta)
     {
-        // console.log('Scene: ', delta);
-        // this.fakeDeltaTime += delta;
-        // console.log(this.tank);
         
-        // let deltaFactor = this.fakeDeltaTime/(1000/this.metaData.ticksPerSecond);
 
         this.gameObject.players.forEach(player => {
             this.tanks.get(player.id).depth = this.tanks.get(player.id).y
+            this.turrets.get(player.id).depth = this.tanks.get(player.id).y+1
+
             let degrees = player.tank.rotation > 0 ? player.tank.rotation : 360 + player.tank.rotation
-            let frameIndex = (Math.floor(degrees * 32/360) + 16)%32
-            // console.log(localPlayer.tank.rotation, degrees, 32/360, frameIndex);
-            this.tanks.get(player.id).setFrame(frameIndex);
+            let frameIndexTank = (Math.floor(degrees * 32/360) )%32
+            // console.log(player.tank.rotation, degrees,frameIndexTank);
+            this.tanks.get(player.id).setFrame(frameIndexTank);
 
             this.tanks.get(player.id).x = player.tank.x;
             this.tanks.get(player.id).y = player.tank.y;
+
+            degrees = player.tank.turretRotation > 0 ? player.tank.turretRotation : 360 + player.tank.turretRotation
+            let frameIndexTurret = ((Math.floor((degrees - 180/32) * 32/360)) % 32)
+            // console.log(frameIndex, degrees);
+            frameIndexTurret = frameIndexTurret > 0 ? 31 - frameIndexTurret : 31
+
+            // console.log((Math.floor((degrees - 360/32) * 32/360)));
+            // console.log(player.tank.turretRotation, frameIndex);
+            this.turrets.get(player.id).setFrame(frameIndexTurret)
+
+            this.turrets.get(player.id).x = player.tank.turretX;
+            this.turrets.get(player.id).y = player.tank.turretY;
         })
 
-        let localPlayer = this.gameObject.players.find(player => player.id == this.playerID);
+
+        //let localPlayer = this.gameObject.players.find(player => player.id == this.playerID);
 
         
-
-
-        // if(!this.oldX || ! this.oldY){
-        //     this.oldX = localPlayer.tank.x;
-        //     this.oldY = localPlayer.tank.y;
-        // }
-
-        // console.log(this.fakeDeltaTime);
-        // if(this.fakeDeltaTime > 1000/this.metaData.ticksPerSecond){
-        //     this.fakeDeltaTime -= 1000/this.metaData.ticksPerSecond
-        //     this.oldX = localPlayer.tank.x;
-        //     this.oldY = localPlayer.tank.y;
-        // }
-
-        // if(Math.pow(localPlayer.tank.x-this.oldX, 2) + Math.pow(localPlayer.tank.y-this.oldY, 2,) < 1){
-        //     oldY = localPlayer.tank.x;
-
-        // }
-        // this.tank.x = this.oldX * deltaFactor + (1-deltaFactor) * localPlayer.tank.x;
-        // this.tank.y = this.oldY * deltaFactor + (1-deltaFactor) * localPlayer.tank.y;
-
-        
-        
-        
-        // let move = this.speed*delta
 
         let left = false;
         let right  = false;
         let up = false;
         let down = false;
 
-        if (this.cursors.right.isDown) {
+
+        if (this.cursors.right.isDown || this.keys.D.isDown) {
             // this.tank.x += move//this.speed * delta;
             right = true;
         }
@@ -177,7 +187,7 @@ export class MainScene extends Phaser.Scene{
             right = false;
         }
 
-        if (this.cursors.left.isDown) {
+        if (this.cursors.left.isDown|| this.keys.A.isDown) {
             // this.tank.x -= move//this.speed * delta;
             left = true;
         }
@@ -185,7 +195,7 @@ export class MainScene extends Phaser.Scene{
             left = false;
         }
 
-        if (this.cursors.up.isDown) {
+        if (this.cursors.up.isDown|| this.keys.W.isDown) {
             // this.tank.y -= move//this.speed * delta;
             up = true;
         }
@@ -193,7 +203,7 @@ export class MainScene extends Phaser.Scene{
             up = false;
         }
 
-        if (this.cursors.down.isDown) {
+        if (this.cursors.down.isDown|| this.keys.S.isDown ) {
             // this.tank.y += move//this.speed * delta;
             down = true;
         }
@@ -203,6 +213,15 @@ export class MainScene extends Phaser.Scene{
 
         this.gameObject.updateInput(this.playerID, up, down, left, right);
 
+
+        let mouse_x = Math.round(this.input.mousePointer.x);
+        let mouse_y = Math.round(this.input.mousePointer.y);
+        let mouse_down = this.input.mousePointer.isDown
+
+        this.gameObject.updateMouse(this.playerID, mouse_x, mouse_y, mouse_down)
+
+        // console.log(mouse_x, mouse_y);
+        // console.log(mouse_down);
     
     }
 }

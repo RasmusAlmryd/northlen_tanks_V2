@@ -82,8 +82,8 @@ export default function(){
                     physics:{
                         default: 'arcade',
                         arcade: {
-                            debug: true,
-                            isDevelopment: true
+                            debug: false,
+                            isDevelopment: false
                         }
                     },
                     fixedStep: false 

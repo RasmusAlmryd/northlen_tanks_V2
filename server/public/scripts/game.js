@@ -106,6 +106,19 @@ class Game{
 
     }
 
+    updateMouse(playerID, x, y, isDown){
+        let player = this.players.find(p => p.id === playerID);
+        if(!player) return;
+        player.input.MOUSE_X = x;
+        player.input.MOUSE_Y = y;
+        player.input.MOUSE_DOWN = isDown;
+
+        let turretRot = -Math.atan2(y-player.tank.turretY, x-player.tank.turretX)
+        turretRot = turretRot * 180/Math.PI;
+        // turretRot = Math.round(turretRot);
+        player.tank.turretRotation = turretRot;
+    }
+
     update(deltaTime){
         //this.lastTimeUpdate = Date.now();
 

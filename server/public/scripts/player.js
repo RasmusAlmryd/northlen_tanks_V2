@@ -17,6 +17,8 @@ export default class Player{
             RIGHT: false,
             MOUSE_X: null,
             MOUSE_Y: null,
+            MOUSE_CLICK: false,
+            MOUSE_DOWN: false,
         }
     }
 

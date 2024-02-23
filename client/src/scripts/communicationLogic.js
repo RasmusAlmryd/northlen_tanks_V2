@@ -6,6 +6,12 @@ export default class CommunicationLogic{
     #right  = false;
     #up = false;
     #down = false;
+    #keyboardUpdate = false;
+
+    #mouse_x = null;
+    #mouse_y = null;
+    #mouse_down = false;
+    #mouseUpdate = false;
 
     lastUpdateTime = 0;
     lastSyncTime = 0;
@@ -84,13 +90,21 @@ export default class CommunicationLogic{
                 player.tank.velocityRotation += this.syncPlayers.get(player.id).rotDiff * interpolationFraction;
             }
 
-            if(player.id = this.playerID){
+            if(player.id === this.playerID){
                 this.up = player.input.UP;
                 this.left = player.input.LEFT;
                 this.right = player.input.RIGHT;
                 this.down = player.input.DOWN;
+
+                this.mouse_x = player.input.MOUSE_X;
+                this.mouse_y = player.input.MOUSE_Y;
+                this.mouse_down = player.input.MOUSE_DOWN;
+                
             }
         })
+
+        this.#keyboardUpdate = false;
+        this.#mouseUpdate = false;
 
     }
 
@@ -101,6 +115,7 @@ export default class CommunicationLogic{
 
     set up(value){
         if(this.#up != value){
+            this.#keyboardUpdate = true
             this.#up = value;
             // console.log('key UP: ', this.#up);
             //TODO: send update to server
@@ -110,6 +125,7 @@ export default class CommunicationLogic{
     set down(value){
         if(this.#down != value){
             this.#down = value;
+            this.#keyboardUpdate = true
             // console.log('key DOWN: ', this.#down);
             //TODO: send update to server
         }
@@ -118,6 +134,7 @@ export default class CommunicationLogic{
     set left(value){
         if(this.#left != value){
             this.#left = value;
+            this.#keyboardUpdate = true
             // console.log('key LEFT: ', this.#left);
             //TODO: send update to server
         }
@@ -126,7 +143,33 @@ export default class CommunicationLogic{
     set right(value){
         if(this.#right != value){
             this.#right = value;
+            this.#keyboardUpdate = true
             // console.log('key RIGHT: ', this.#right);
+            //TODO: send update to server
+        }
+    }
+
+    set mouse_x(value){
+        if(this.#mouse_x != value){
+            this.#mouse_x = value;
+            this.#mouseUpdate = true
+            //TODO: send update to server
+        }
+    }
+
+    set mouse_y(value){
+        if(this.#mouse_y != value){
+            this.#mouse_y = value;
+            this.#mouseUpdate = true
+            //TODO: send update to server
+        }
+    }
+
+    set mouse_down(value){
+        if(this.#mouse_down != value){
+            this.#mouse_down = value;
+            this.#mouseUpdate = true
+            // console.log('Mouse down: ', this.#mouse_down);
             //TODO: send update to server
         }
     }

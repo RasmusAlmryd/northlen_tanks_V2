@@ -50,9 +50,9 @@ export default class GameEntity{
 
     applyVelocityAccordingToRotation(vx, vy){
         this.#rotationAdjustedVelocityX = vx; this.#rotationAdjustedVelocityY = vy;
-        this.#xVelocity = vx * Math.cos(this.#degrees_to_radians(this.#velocityRotation)) + vy * Math.sin(this.#degrees_to_radians(this.#velocityRotation));
-        this.#yVelocity = vy * Math.cos(this.#degrees_to_radians(this.#velocityRotation)) + vx * Math.sin(this.#degrees_to_radians(this.#velocityRotation));
-        // console.log(this.#degrees_to_radians(this.#velocityRotation)/Math.PI);
+        this.#xVelocity = vx * Math.cos(GameEntity.degrees_to_radians(this.#velocityRotation)) + vy * Math.sin(GameEntity.degrees_to_radians(this.#velocityRotation));
+        this.#yVelocity = vy * Math.cos(GameEntity.degrees_to_radians(this.#velocityRotation)) + vx * Math.sin(GameEntity.degrees_to_radians(this.#velocityRotation));
+        // console.log(this.GameEntity.degrees_to_radians(this.#velocityRotation)/Math.PI);
         // console.log(this.#xVelocity,  this.#yVelocity);
     }
 
@@ -68,7 +68,7 @@ export default class GameEntity{
         this.y += this.#yVelocity*delta;
     }
 
-    #degrees_to_radians(degrees)
+    static degrees_to_radians(degrees)
     {
         var pi = Math.PI;
         return degrees * (pi/180);
