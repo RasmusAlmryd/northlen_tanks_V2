@@ -93,14 +93,13 @@ class Game{
         }
 
         if(player.input.LEFT === true){
-            rotV -= player.tank.rotationSpeed;
+            rotV -= player.tank.tankRotationSpeed;
         }
 
         if(player.input.RIGHT === true){
-            rotV += player.tank.rotationSpeed;
+            rotV += player.tank.tankRotationSpeed;
         }
 
-        
         player.tank.applyVelocityAccordingToRotation(vx, 0);
         player.tank.rotate(rotV);
 

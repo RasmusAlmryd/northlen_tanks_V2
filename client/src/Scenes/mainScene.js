@@ -24,15 +24,22 @@ export class MainScene extends Phaser.Scene{
     preload(){
         console.log('hej');
         // this.load.spritesheet('tank', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", { frameWidth: 70, frameHeight: 70 })
-        var tankImg = new Image();
-        tankImg.crossOrigin = "anonymous";
-        tankImg.onload = () =>{
+        // var tankImg = new Image();
+        // tankImg.crossOrigin = "anonymous";
+        // tankImg.onload = () =>{
             
-            this.textures.addSpriteSheet('tank', tankImg, { frameWidth: 70, frameHeight: 70 });
-        }
-        tankImg.src = process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png"
+        //     this.textures.addSpriteSheet('tank', tankImg, { frameWidth: 70, frameHeight: 70 });
+        // }
+        // tankImg.src = process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png"
 
-        ColorLoader.getSprites(this, process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", 'tank', ['#cc66c0'])
+        let done = false;
+        let asyncSpriteLoads = async () =>{
+            let colors = this.gameObject.players.map(player => player.color)
+            await ColorLoader.getSpriteSheets(this, process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", 'tank', colors, { frameWidth: 70, frameHeight: 70 }); 
+            console.log('done loading');
+            done = true;
+        }
+        asyncSpriteLoads();
 
         this.load.spritesheet('turret', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_turret.png", { frameWidth: 50, frameHeight: 50 })
         this.numTankBodyFrames = 32;
@@ -46,9 +53,12 @@ export class MainScene extends Phaser.Scene{
         //this.load.tilemapTiledJSON('map', process.env.REACT_APP_API_ENDPOINT + '/map/tilemaps/map1_4player.json')
         this.load.tilemapTiledJSON('map', this.gameObject.map.mapData);
         
+        
+        
     }
 
     create(){
+        console.log('create');
 
         const map = this.make.tilemap({key: 'map'})
 
@@ -102,9 +112,12 @@ export class MainScene extends Phaser.Scene{
         const tank = 1;
 
 
+        // console.log(this.textures);
+        console.log(this.gameObject.players);
+
         this.gameObject.players.forEach(player => {
             // console.log(player.tank.width, player.tank.height);
-            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank',0 )
+            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank-'+player.color,0 )
             tank.setScale(this.gameObject.map.tileWidth/(player.tank.width*tankSpriteScaling));
 
             // tank.displayHeight = player.tank.height*tankSpriteScaling

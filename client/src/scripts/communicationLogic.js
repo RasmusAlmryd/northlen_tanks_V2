@@ -13,7 +13,7 @@ export default class CommunicationLogic{
     #mouse_down = false;
     #mouseUpdate = false;
 
-    lastUpdateTime = 0;
+    lastUpdateTime = Date.now();
     lastSyncTime = 0;
 
     ticksPerSecond = 30;
@@ -50,7 +50,6 @@ export default class CommunicationLogic{
         });
 
         this.socket.on('initialize', ({players}) =>{
-            console.log(players);
             this.game.players = this.Serializer.deserialize(players);
         })
 
@@ -59,7 +58,7 @@ export default class CommunicationLogic{
         });
 
         this.socket.on('synchronization', ({players}) =>{
-            // console.log('sync', players);
+            console.log('sync', players);
             players.forEach( player => {
                 let currentPlayer = this.game.players.find( p => p.id == player.id );
                 // console.log(player.x, player.y);
@@ -70,6 +69,7 @@ export default class CommunicationLogic{
             });
         })
 
+        this.lastUpdateTime = Date.now();
         this.#updateInterval = setInterval(() => {
             this.update(Date.now() - this.lastUpdateTime)
             this.lastUpdateTime = Date.now();

@@ -97,6 +97,8 @@ export default function(io, socket, lobbies){
         let metaData = {ticksPerSecond, sync_interval};
         let serializedPlayers = Serializer.serialize(lobby.game.players)
 
+        // console.log(lobby.game.players);
+
         socket.emit('game-load', {err: null, data: {'players': serializedPlayers, map, state, metaData}});
     })
 

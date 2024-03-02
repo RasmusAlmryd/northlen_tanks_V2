@@ -3,7 +3,7 @@ import SimpleBullet from "./projectiles/simpleBullet.js";
 
 class Weapon{
 
-    #name;
+    name;
     x;
     y;
     angle;
@@ -17,7 +17,7 @@ class Weapon{
      * @param {Number} playerSize is measurement of player
      */
     constructor(name, x, y, angle, playerSize){
-        this.#name = name;
+        this.name = name;
         this.x = x;
         this.y = y;
         this.angle = angle;
@@ -25,7 +25,7 @@ class Weapon{
     }
 
     get name(){
-        return this.#name;
+        return this.name;
     }
 
     /**

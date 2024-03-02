@@ -43,9 +43,8 @@ export default function(){
                 let metaData = data.metaData;
                 let state = data.state;
 
-                
-                let playerClassObjs = Serializer.deserialize(players);
 
+                let playerClassObjs = Serializer.deserialize(players)
 
                 let map;
                 try {
@@ -93,7 +92,7 @@ export default function(){
                 phaserGame.scene.start('MainScene', {game, playerID: currentUser.id, metaData})
                 commLogic = new CommunicationLogic(game, socket, metaData, currentUser.id);
 
-                socket.emit('game-ready', true)
+                socket.emit('game-ready', true);
             }
 
             asyncExecute();
