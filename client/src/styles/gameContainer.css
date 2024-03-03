@@ -12,6 +12,95 @@ body{
     background-color: #2e2f39;
 }
 
+#loading-overlay{
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    background-color: #2e2f39;
+    z-index: 10;
+    
+}
+
+#loading-icon-container{
+    /* width: min(10vh, 10vw); */
+    opacity: 0;
+    width: 100%;
+    height: min(10vh, 10vw);
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    transform: translateY(-50%);
+    top: 50%;
+}
+
+#loading-gif{
+    /* opacity: 0%; */
+    /* width: 50%; */
+    height: 60%;
+    max-height: 120px;
+    margin-left: auto;
+    margin-right: auto;
+    flex:1;
+    image-rendering: pixelated;
+
+}
+
+#loading-icon-container h2{
+    flex: 1;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    font-size: max(14px, min(1.5vw, 22px));
+}
+
+
+
+.shrink{
+    animation: shrinkAndCenter 0.2s ease-out forwards;
+}
+
+.opacityReveal{
+    animation: opacityReveal 0.5s ease-out forwards;
+}
+
+.opacityHide{
+    animation: opacityHide 0.2s ease-out forwards;
+}
+
+@keyframes shrinkAndCenter {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0);
+      /*opacity: 0;*/
+    }
+  }
+
+@keyframes opacityReveal {
+    0%{
+        opacity: 0%;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+@keyframes opacityHide {
+    0%{
+        opacity: 100%;
+    }
+    100% {
+        opacity: 0%;
+    }
+}
+
 /* #game-content{
     overflow-x: hidden;
 

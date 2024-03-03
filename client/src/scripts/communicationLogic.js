@@ -58,7 +58,6 @@ export default class CommunicationLogic{
         });
 
         this.socket.on('synchronization', ({players}) =>{
-            console.log('sync', players);
             players.forEach( player => {
                 let currentPlayer = this.game.players.find( p => p.id == player.id );
                 // console.log(player.x, player.y);

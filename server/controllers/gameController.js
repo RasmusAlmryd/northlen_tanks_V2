@@ -176,7 +176,7 @@ class serverGameLogic{
     countdown = 0;
     #lastSentCountdown = 0;
     #maxClientDiffCountdown = 500; // in milliseconds
-    #contdownDuration = 1; // in seconds
+    #contdownDuration = 5; // in seconds
     #contdownDurationBetweenRounds = 3; // in seconds
 
     constructor(lobby,game, socket, io){

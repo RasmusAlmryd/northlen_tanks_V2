@@ -32,16 +32,16 @@ export class MainScene extends Phaser.Scene{
         // }
         // tankImg.src = process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png"
 
-        let done = false;
-        let asyncSpriteLoads = async () =>{
-            let colors = this.gameObject.players.map(player => player.color)
-            await ColorLoader.getSpriteSheets(this, process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", 'tank', colors, { frameWidth: 70, frameHeight: 70 }); 
-            console.log('done loading');
-            done = true;
-        }
-        asyncSpriteLoads();
+        // let done = false;
+        // let asyncSpriteLoads = async () =>{
+        //     let colors = this.gameObject.players.map(player => player.color)
+        //     await ColorLoader.getSpriteSheets(this, process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_body.png", 'tank', colors, { frameWidth: 70, frameHeight: 70 }); 
+        //     console.log('done loading');
+        //     done = true;
+        // }
+        // asyncSpriteLoads();
 
-        this.load.spritesheet('turret', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_turret.png", { frameWidth: 50, frameHeight: 50 })
+        // this.load.spritesheet('turret', process.env.REACT_APP_API_ENDPOINT + "/sprites/tank_turret.png", { frameWidth: 50, frameHeight: 50 })
         this.numTankBodyFrames = 32;
         // this.load.image('wall', process.env.PUBLIC_URL + "/wall.png.")
         this.load.image('TXgrass', process.env.REACT_APP_API_ENDPOINT + '/map/textures/TXGrass.png')
@@ -107,36 +107,14 @@ export class MainScene extends Phaser.Scene{
         })
 
 
-        let tankSpriteScaling = 1.9;
-        let turretSpriteScaling = 1.9;
+        
         const tank = 1;
 
 
         // console.log(this.textures);
         console.log(this.gameObject.players);
 
-        this.gameObject.players.forEach(player => {
-            // console.log(player.tank.width, player.tank.height);
-            let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank-'+player.color,0 )
-            tank.setScale(this.gameObject.map.tileWidth/(player.tank.width*tankSpriteScaling));
-
-            // tank.displayHeight = player.tank.height*tankSpriteScaling
-            // tank.displayWidth =player.tank.width*tankSpriteScaling
-            // tank.setSize(player.tank.width, player.tank.height, true)
-            //tank.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
-            
-            this.tanks.set(player.id, tank);
-
-            let turret = this.physics.add.image(player.tank.turretX, player.tank.turretY, 'turret', 0 )
-            turret.setScale(this.gameObject.map.tileWidth/(player.tank.width*turretSpriteScaling))
-
-            // turret.displayHeight = player.tank.height*turretSpriteScaling
-            // turret.displayWidth =player.tank.width*turretSpriteScaling
-            // tank.setSize(player.tank.width, player.tank.height, true)
-            // //turret.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
-            
-            this.turrets.set(player.id, turret);
-        });
+        
         
 
 
@@ -148,15 +126,45 @@ export class MainScene extends Phaser.Scene{
 
     }
 
+    loadTankSprites(player){
+        console.log('här?: ', player.color);
+        let tankSpriteScaling = 1.9;
+        let turretSpriteScaling = 1.9;
+        // console.log(player.tank.width, player.tank.height);
+        let tank = this.physics.add.image(player.tank.x, player.tank.y, 'tank-'+player.color,0 )
+        tank.setScale(this.gameObject.map.tileWidth/(player.tank.width*tankSpriteScaling));
+
+        // tank.displayHeight = player.tank.height*tankSpriteScaling
+        // tank.displayWidth =player.tank.width*tankSpriteScaling
+        // tank.setSize(player.tank.width, player.tank.height, true)
+        //tank.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
+        
+        this.tanks.set(player.id, tank);
+
+        let turret = this.physics.add.image(player.tank.turretX, player.tank.turretY, 'turret-'+player.color, 0 )
+        turret.setScale(this.gameObject.map.tileWidth/(player.tank.width*turretSpriteScaling))
+
+        // turret.displayHeight = player.tank.height*turretSpriteScaling
+        // turret.displayWidth =player.tank.width*turretSpriteScaling
+        // tank.setSize(player.tank.width, player.tank.height, true)
+        // //turret.setSize(this.gameObject.map.tileWidth, this.gameObject.map.tileHeight, true)
+        
+        this.turrets.set(player.id, turret);
+    }
+
     // update(){
     //     
     // }
 
     update (time, delta)
     {
-        
+        this.gameObject.players.forEach(player => {
+            if(player.tank !== null && !this.tanks.has(player.id) && !this.turrets.has(player.id)) this.loadTankSprites(player);
+        });
 
         this.gameObject.players.forEach(player => {
+            if(player.tank === null) return;
+
             this.tanks.get(player.id).depth = this.tanks.get(player.id).y
             this.turrets.get(player.id).depth = this.tanks.get(player.id).y+1
 

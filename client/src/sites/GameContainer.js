@@ -5,6 +5,7 @@ import Phaser from 'phaser'
 import '../styles/gameContainer.css'
 import { MainScene } from "../Scenes/mainScene";
 import CommunicationLogic from "../scripts/communicationLogic.js";
+import Preloader from "../Scenes/preloader.js";
 
 export default function(){
     //const [game, setGame] = useState();
@@ -58,7 +59,6 @@ export default function(){
 
                 game = new Game(playerClassObjs, map);
                 game.gameState = state;
-                // setGame(new Game(players, map));
 
 
                 let width = map.width * map.tileWidth;
@@ -77,7 +77,7 @@ export default function(){
                         height: height,
                         parent: 'game-content'
                     },
-                    scene: [MainScene], 
+                    scene: [Preloader,MainScene], 
                     physics:{
                         default: 'arcade',
                         arcade: {
@@ -89,10 +89,22 @@ export default function(){
                 };
 
                 phaserGame = new Phaser.Game(phaserConfig);
-                phaserGame.scene.start('MainScene', {game, playerID: currentUser.id, metaData})
+
+                let readyCallback = async () =>{
+                    const wait = (ms) => { return new Promise((resolve, reject) => {setTimeout(resolve, ms)})} 
+                    await wait(500);
+                    document.getElementById('loading-overlay').classList.add('shrink');
+                    socket.emit('game-ready', true);
+                }
+
+                let delayCallback = async () =>{
+                    document.getElementById('loading-icon-container').classList.add('opacityReveal');
+                }
+
+                phaserGame.scene.start('Preloader', {game, playerID: currentUser.id, metaData, readyCallback, delayCallback})
                 commLogic = new CommunicationLogic(game, socket, metaData, currentUser.id);
 
-                socket.emit('game-ready', true);
+                
             }
 
             asyncExecute();
@@ -107,7 +119,17 @@ export default function(){
     
 
     return (
-        <div id='game-content' key='game-content'></div>
+        <>
+            <div id="loading-overlay">
+                <div id='loading-icon-container'>
+                    <img src="./loading.gif" alt="Loading" id="loading-gif" />
+                    <h2>loading</h2>
+                </div>
+                
+            </div>
+            <div id='game-content' key='game-content'></div>
+        </>
+        
     )
     
 }

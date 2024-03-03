@@ -72,7 +72,7 @@ class Game{
 
     updateInput(playerID, up, down, left, right){
         let player = this.players.find(p => p.id === playerID);
-        if(!player) return;
+        if(!player || player.tank === null) return;
 
         player.input.UP = up;
         player.input.DOWN = down;
@@ -107,7 +107,7 @@ class Game{
 
     updateMouse(playerID, x, y, isDown){
         let player = this.players.find(p => p.id === playerID);
-        if(!player) return;
+        if(!player || player.tank === null) return;
         player.input.MOUSE_X = x;
         player.input.MOUSE_Y = y;
         player.input.MOUSE_DOWN = isDown;

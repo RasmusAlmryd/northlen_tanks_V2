@@ -34,11 +34,11 @@ export default class GameEntity{
      * Rotation that is used to apply to the velocity vector
      * @param {Number} deg 
      */
-    set velocityRotation(deg){
-        deg = deg%360;
-        deg = deg >= 0 ? deg : 360 + deg 
-        this.velocityRotation = deg;
-    }
+    // set velocityRotation(deg){
+    //     deg = deg%360;
+    //     deg = deg >= 0 ? deg : 360 + deg 
+    //     this.velocityRotation = deg;
+    // }
 
     get velocityRotation(){
         return this.velocityRotation;
@@ -68,6 +68,8 @@ export default class GameEntity{
         this.x += this.xVelocity*delta;
         this.y += this.yVelocity*delta;
         this.velocityRotation += this.rotationSpeed * delta;
+        this.velocityRotation = this.velocityRotation % 360;
+        this.velocityRotation = this.velocityRotation >= 0 ? this.velocityRotation : 360 + this.velocityRotation;
     }
 
     static degrees_to_radians(degrees)
